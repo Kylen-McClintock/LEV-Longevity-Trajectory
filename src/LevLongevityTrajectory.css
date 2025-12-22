@@ -1,0 +1,208 @@
+.lev-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #000000;
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.lev-header {
+  margin-bottom: 24px;
+}
+
+.lev-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.lev-subtitle {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  margin-top: 4px;
+}
+
+.lev-controls-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lev-control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lev-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 500;
+}
+
+.lev-value {
+  font-size: 14px;
+  font-weight: 500;
+  font-feature-settings: "tnum";
+}
+
+.lev-slider {
+  width: 100%;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  height: 4px;
+  border-radius: 2px;
+  outline: none;
+}
+
+.lev-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  background: white;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  transition: transform 0.1s;
+}
+
+.lev-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.lev-toggle-group {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 2px;
+  width: fit-content;
+}
+
+.lev-toggle-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.lev-toggle-btn.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 500;
+}
+
+.lev-main-layout {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 32px;
+}
+
+@media (max-width: 900px) {
+  .lev-main-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.lev-chart-area {
+  position: relative;
+  background: rgba(255, 255, 255, 0.01);
+  border-radius: 8px;
+  /* border: 1px solid rgba(255, 255, 255, 0.05); */
+  height: 500px;
+}
+
+.lev-side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.lev-stat-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.lev-stat-title {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 8px;
+}
+
+.lev-stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: white;
+}
+
+.lev-stat-sub {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.lev-play-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+}
+
+.lev-play-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  background: transparent;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.lev-play-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.lev-scrub-slider {
+  flex: 1;
+}
+
+/* Tooltip */
+.lev-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background: rgba(10, 10, 10, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  z-index: 100;
+  transform: translate(-50%, -100%);
+  margin-top: -10px;
+}
