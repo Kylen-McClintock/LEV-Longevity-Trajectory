@@ -227,4 +227,14 @@
   .lev-scenario-details {
     margin-top: 80px;
   }
+
+  .lev-desktop-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 901px) {
+  .lev-mobile-only {
+    display: none !important;
+  }
 }
