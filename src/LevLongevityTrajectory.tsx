@@ -488,7 +488,7 @@ export default function LevLongevityTrajectory() {
 
                     {/* Scrubber Controls (Moved from Side Panel) */}
                     <div className="lev-play-controls" style={{ marginTop: 12, padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
                             <button className="lev-play-btn" onClick={() => setIsPlaying(!isPlaying)} style={{ flexShrink: 0 }}>
                                 {isPlaying ? '⏸' : '▶'}
                             </button>
