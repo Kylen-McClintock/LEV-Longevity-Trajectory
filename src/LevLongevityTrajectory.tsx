@@ -493,6 +493,11 @@ export default function LevLongevityTrajectory() {
                                 {isPlaying ? '⏸' : '▶'}
                             </button>
                             <div className="lev-scrub-slider" style={{ flexGrow: 1 }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 4, opacity: 0.7 }}>
+                                    <span>{currentYear}</span>
+                                    <span>Scrub Year</span>
+                                    <span>{currentYear + 100}</span>
+                                </div>
                                 <input type="range"
                                     min={currentYear} max={currentYear + 100}
                                     value={scrubYear}
@@ -509,11 +514,6 @@ export default function LevLongevityTrajectory() {
                                         <option key={y} value={y} label={`${y}`} />
                                     ))}
                                 </datalist>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginTop: 4, opacity: 0.5 }}>
-                                    {Array.from({ length: 6 }, (_, i) => currentYear + i * 20).map(y => (
-                                        <span key={y}>{y}</span>
-                                    ))}
-                                </div>
                             </div>
                         </div>
                     </div>

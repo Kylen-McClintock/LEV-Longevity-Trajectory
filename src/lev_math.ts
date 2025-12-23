@@ -105,8 +105,8 @@ export function getProgressMultiplier(
     // Z score for quantile
     const z_q = getZScoreForCentile(quantileKey);
 
-    // r_q(y,p) = exp(mu + z_q * sigma)
-    const r = Math.exp(mu + z_q * sigma);
+    // r_q(y,p) = exp(mu - z_q * sigma)
+    const r = Math.exp(mu - z_q * sigma);
 
     // Clamp r in [0.01, 1.20]. Allow it to go lower for LEV deep impact.
     return Math.min(1.20, Math.max(0.01, r));

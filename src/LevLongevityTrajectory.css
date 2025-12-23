@@ -122,7 +122,8 @@
 
 @media (max-width: 900px) {
   .lev-main-layout {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column-reverse;
   }
 }
 
