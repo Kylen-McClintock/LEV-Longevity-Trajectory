@@ -132,7 +132,8 @@
   background: rgba(255, 255, 255, 0.01);
   border-radius: 8px;
   /* border: 1px solid rgba(255, 255, 255, 0.05); */
-  height: 500px;
+  height: auto;
+  min-height: 500px;
 }
 
 .lev-side-panel {

@@ -104,6 +104,7 @@ export default function LevLongevityTrajectory() {
     // Comparison Cohorts (Fixed Scores: 95, 75, 50, 25)
     // "See difference better longevity protocols have on outcomes"
     // We assume these represent "Someone at that level", so we start them at that score to show steady-state difference immediately.
+    const cohortScore5 = useMemo(() => simulateCohort(age, sex, 5, 5, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
     const cohortScore25 = useMemo(() => simulateCohort(age, sex, 25, 25, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
     const cohortScore50 = useMemo(() => simulateCohort(age, sex, 50, 50, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
 
@@ -216,7 +217,7 @@ export default function LevLongevityTrajectory() {
         const source95 = coneMode === 'uncertainty' ? cohortFan95 : cohortScore95;
         const source75 = coneMode === 'uncertainty' ? cohortFan75 : cohortScore75;
         const source25 = coneMode === 'uncertainty' ? cohortFan25 : cohortScore25;
-        const source5 = coneMode === 'uncertainty' ? cohortFan5 : cohortScore25; // Protocol comparison doesn't have 5th quantile generated, reuse 25 or need 5?
+        const source5 = coneMode === 'uncertainty' ? cohortFan5 : cohortScore5; // Now we have score 5
         // Actually, for protocol variance, we usually show 25-95 range.
         // Let's map: 
         // Uncertainty: 5, 25, 75, 95 (Medical Percentiles)
@@ -233,14 +234,14 @@ export default function LevLongevityTrajectory() {
             };
             data.push({
                 age: a,
-                v5: coneMode === 'uncertainty' ? getVal(source5) : getVal(source25), // Use 25 as lower bound for protocol
+                v5: getVal(source5),
                 v25: getVal(source25),
                 v75: getVal(source75),
                 v95: getVal(source95),
             });
         }
         return data;
-    }, [coneMode, cohortFan5, cohortFan25, cohortFan75, cohortFan95, cohortScore25, cohortScore75, cohortScore95, viewMode, age]);
+    }, [coneMode, cohortFan5, cohortFan25, cohortFan75, cohortFan95, cohortScore5, cohortScore25, cohortScore75, cohortScore95, viewMode, age]);
 
 
     // Playhead / Scrubber
@@ -306,28 +307,6 @@ export default function LevLongevityTrajectory() {
                     </div>
                     <input type="range" min={1} max={99} value={targetScore}
                         onChange={e => setTargetScore(Number(e.target.value))} className="lev-slider" />
-                </div>
-
-                <div className="lev-control-group lev-desktop-only">
-                    <label className="lev-label">
-                        Cone of Uncertainty
-                    </label>
-                    <div className="lev-toggle-group" style={{ marginTop: 4 }}>
-                        <button
-                            className={`lev-toggle-btn ${coneMode === 'uncertainty' ? 'active' : ''}`}
-                            onClick={() => setConeMode('uncertainty')}
-                            style={{ fontSize: 9, padding: '4px 8px' }}
-                        >
-                            Medical Progress
-                        </button>
-                        <button
-                            className={`lev-toggle-btn ${coneMode === 'protocol' ? 'active' : ''}`}
-                            onClick={() => setConeMode('protocol')}
-                            style={{ fontSize: 9, padding: '4px 8px' }}
-                        >
-                            Protocol Variance
-                        </button>
-                    </div>
                 </div>
 
                 <div className="lev-control-group">
@@ -429,7 +408,7 @@ export default function LevLongevityTrajectory() {
                             {/* Fan Bands (Target) */}
                             {/* 5-95 */}
                             <path d={areaGen.y0((d: any) => yScale(d.v5)).y1((d: any) => yScale(d.v95))(fanData) || ''}
-                                fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.08} />
+                                fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.15} />
                             {/* 25-75 */}
                             <path d={areaGen.y0((d: any) => yScale(d.v25)).y1((d: any) => yScale(d.v75))(fanData) || ''}
                                 fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.3} />
@@ -610,8 +589,8 @@ export default function LevLongevityTrajectory() {
                 </div>
             </div> {/* Close lev-main-layout */}
 
-            {/* Mobile-Only Cone Toggle (Between Scrubber and Table) */}
-            <div className="lev-mobile-only" style={{ marginTop: 40, marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
+            {/* Cone Toggle (Between Scrubber and Table) - Visible on Both Mobile and Desktop */}
+            <div style={{ marginTop: 20, marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
                 <div style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                     <label className="lev-label">Cone of Uncertainty Mode</label>
                     <div className="lev-toggle-group">
