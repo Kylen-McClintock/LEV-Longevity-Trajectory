@@ -133,8 +133,9 @@
   border-radius: 8px;
   /* border: 1px solid rgba(255, 255, 255, 0.05); */
   height: auto;
-  min-height: 500px;
+  min-height: 450px;
 }
+
 
 .lev-side-panel {
   display: flex;
@@ -266,7 +267,7 @@
 }
 
 .lev-toggle-container {
-  margin-top: 10px;
+  margin-top: 0px;
 }
 
 @media (max-width: 900px) {

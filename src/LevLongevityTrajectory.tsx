@@ -685,7 +685,7 @@ export default function LevLongevityTrajectory() {
                 <div style={{ marginTop: 8 }}>
                     <button
                         onClick={() => setShowAnalysis(!showAnalysis)}
-                        style={{ background: 'transparent', border: 'none', color: '#78B999', cursor: 'pointer', padding: 0, fontSize: 12, textDecoration: 'underline' }}>
+                        style={{ background: 'transparent', border: 'none', color: '#78B999', cursor: 'pointer', padding: 0, fontSize: 16, textDecoration: 'underline' }}>
                         {showAnalysis ? 'Hide Model Analysis & Methodology' : 'Show Model Analysis & Methodology ▼'}
                     </button>
                 </div>
