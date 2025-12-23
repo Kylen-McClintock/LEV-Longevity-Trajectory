@@ -432,7 +432,7 @@ export default function LevLongevityTrajectory() {
                                 fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.08} />
                             {/* 25-75 */}
                             <path d={areaGen.y0((d: any) => yScale(d.v25)).y1((d: any) => yScale(d.v75))(fanData) || ''}
-                                fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.18} />
+                                fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.3} />
 
                             {/* Current Scenario Line (Dashed) */}
                             <path d={lineGen(getCurveData(cohortCurrent)) || ''}
@@ -611,7 +611,7 @@ export default function LevLongevityTrajectory() {
             </div> {/* Close lev-main-layout */}
 
             {/* Mobile-Only Cone Toggle (Between Scrubber and Table) */}
-            <div className="lev-mobile-only" style={{ marginTop: 20, marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
+            <div className="lev-mobile-only" style={{ marginTop: 40, marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
                 <div style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                     <label className="lev-label">Cone of Uncertainty Mode</label>
                     <div className="lev-toggle-group">
