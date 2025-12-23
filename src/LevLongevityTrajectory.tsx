@@ -599,8 +599,11 @@ export default function LevLongevityTrajectory() {
 
 
                     <div style={{ fontSize: 10, opacity: 0.3, marginTop: 20, lineHeight: 1.4 }}>
+                        {optimism === 0
+                            ? "Baseline expectations of medical progress from an aggregate of expert forecasts and prediction markets."
+                            : `Optimism ${optimism > 0 ? '+' : ''}${optimism} corresponds to ${optimism > 0 ? '+' : ''}${optimism * 10}% median speed.`}
+                        <br />
                         Population-level projections and forecast scenarios. Results vary and are not guaranteed.
-                        Optimism {optimism > 0 ? '+' : ''}{optimism} corresponds to {optimism > 0 ? '+' : ''}{optimism * 20}% med speed.
                     </div>
 
                 </div>
