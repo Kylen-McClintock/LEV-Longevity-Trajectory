@@ -484,6 +484,32 @@ export default function LevLongevityTrajectory() {
                             </>
                         )}
                     </div>
+
+                    {/* Scrubber Controls (Moved from Side Panel) */}
+                    <div className="lev-play-controls" style={{ marginTop: 12, padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <button className="lev-play-btn" onClick={() => setIsPlaying(!isPlaying)} style={{ flexShrink: 0 }}>
+                                {isPlaying ? '⏸' : '▶'}
+                            </button>
+                            <div className="lev-scrub-slider" style={{ flexGrow: 1 }}>
+                                <input type="range"
+                                    min={currentYear} max={currentYear + 100}
+                                    value={scrubYear}
+                                    onChange={e => {
+                                        setScrubYear(Number(e.target.value));
+                                        setIsPlaying(false);
+                                    }}
+                                    className="lev-slider"
+                                    style={{ width: '100%' }}
+                                />
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginTop: 4, opacity: 0.5 }}>
+                                    <span>{currentYear}</span>
+                                    <span>Scrub Year</span>
+                                    <span>{currentYear + 100}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -566,26 +592,7 @@ export default function LevLongevityTrajectory() {
                         </div>
                     </div>
 
-                    <div className="lev-play-controls">
-                        <button className="lev-play-btn" onClick={() => setIsPlaying(!isPlaying)}>
-                            {isPlaying ? '⏸' : '▶'}
-                        </button>
-                        <div className="lev-scrub-slider">
-                            <input type="range"
-                                min={currentYear} max={currentYear + 100}
-                                value={scrubYear}
-                                onChange={e => {
-                                    setScrubYear(Number(e.target.value));
-                                    setIsPlaying(false);
-                                }}
-                                className="lev-slider"
-                                style={{ width: '100%' }}
-                            />
-                            <div style={{ textAlign: 'center', fontSize: 10, marginTop: 4, opacity: 0.5 }}>
-                                Scrub Year
-                            </div>
-                        </div>
-                    </div>
+
 
                     <div style={{ fontSize: 10, opacity: 0.3, marginTop: 20, lineHeight: 1.4 }}>
                         Population-level projections and forecast scenarios. Results vary and are not guaranteed.
@@ -727,16 +734,15 @@ export default function LevLongevityTrajectory() {
                             <br />
                             <strong>Key Accelerants (Move to Top of Cone):</strong>
                             <ul style={{ paddingLeft: 16, marginTop: 4 }}>
-                                <li><strong>Recursive Self-Improving AI:</strong> Increasing overall intelligence to solve biological complexity.</li>
-                                <li><strong>Virtual Cell Simulations:</strong> Accurate in-silico models grounded to reality, reducing trial-and-error.</li>
-                                <li><strong>Automated Wetlabs:</strong> Robotically validating science at scale, closing the loop with AI.</li>
-                                <li><strong>Capital Inflows:</strong> Massive government & public investment to reduce the medical cost burden of aging populations.</li>
+                                <li><strong>The GPT-3 Moment for Biology:</strong> Once partial age reversal is proven in humans, it will trigger a "Sputnik Moment." Massive capital inflows (public & private) will flood the sector, similar to the AI boom of 2025/2026.</li>
+                                <li><strong>Economic Imperative:</strong> With a median willingness-to-pay of <strong>$129k per extra year of healthy life</strong>, longevity is poised to become the world's largest industry. Governments are highly motivated to subsidize these therapies to eliminate the crippling cost burden of senior care.</li>
+                                <li><strong>Recursive AI & Simulation:</strong> Self-improving AI models grounding virtual cell simulations in reality, allowing for automated, high-throughput wetlab validation.</li>
                             </ul>
                             <strong>Key Stalls (Move to Bottom of Cone):</strong>
                             <ul style={{ paddingLeft: 16, marginTop: 4 }}>
-                                <li><strong>Geopolitical Conflict:</strong> Global chaos diverting resources away from long-term science.</li>
-                                <li><strong>Misaligned AI:</strong> Powerful systems hijacked by chaos agents or used for destruction rather than progress.</li>
-                                <li><strong>Economic Stagnation:</strong> Systemic collapse limiting the funding required for expensive R&D.</li>
+                                <li><strong>AI Crackdown:</strong> Governments acting to shut down overall AI progress due to chaos/misalignment fears, causing collateral damage to AI-accelerated biology.</li>
+                                <li><strong>Geopolitical Conflict:</strong> Global instability diverting focus and supply chains away from long-term scientific abundance.</li>
+                                <li><strong>Terrorist/Chaos Agents:</strong> Powerful AIs falling into the wrong hands, forcing draconian regulations that stifle open scientific progress.</li>
                             </ul>
                             Use the <strong>Optimism Slider</strong> to bias this probability distribution.
                         </p>
