@@ -493,10 +493,8 @@ export default function LevLongevityTrajectory() {
                                 {isPlaying ? '⏸' : '▶'}
                             </button>
                             <div className="lev-scrub-slider" style={{ flexGrow: 1 }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginBottom: 4, opacity: 0.7 }}>
-                                    <span>{currentYear}</span>
-                                    <span>Scrub Year</span>
-                                    <span>{currentYear + 100}</span>
+                                <div style={{ textAlign: 'center', fontSize: 11, marginBottom: 6, opacity: 0.7, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                                    Scrubber: Year {scrubYear}
                                 </div>
                                 <input type="range"
                                     min={currentYear} max={currentYear + 100}
@@ -506,14 +504,13 @@ export default function LevLongevityTrajectory() {
                                         setIsPlaying(false);
                                     }}
                                     className="lev-slider"
-                                    style={{ width: '100%' }}
-                                    list="scrub-ticks"
+                                    style={{ width: '100%', display: 'block' }}
                                 />
-                                <datalist id="scrub-ticks">
-                                    {Array.from({ length: 11 }, (_, i) => currentYear + i * 10).map(y => (
-                                        <option key={y} value={y} label={`${y}`} />
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginTop: 6, opacity: 0.4 }}>
+                                    {Array.from({ length: 6 }, (_, i) => currentYear + i * 20).map(y => (
+                                        <span key={y}>{y}</span>
                                     ))}
-                                </datalist>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -610,7 +607,7 @@ export default function LevLongevityTrajectory() {
             </div> {/* Close lev-main-layout */}
 
             {/* Bottom: Detailed Scrubber Data */}
-            <div style={{ marginTop: 20, background: 'rgba(0,0,0,0.3)', borderRadius: 8, padding: 16, border: '1px solid rgba(255,255,255,0.1)' }}>
+            <div className="lev-scenario-details">
                 <div className="lev-stat-title" style={{ marginBottom: 12 }}>
                     SCENARIO DETAILS AT YEAR {scrubYear} (Chronological Age {scrubYear - (currentYear - age)})
                 </div>
