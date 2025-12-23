@@ -590,8 +590,8 @@ export default function LevLongevityTrajectory() {
             </div> {/* Close lev-main-layout */}
 
             {/* Cone Toggle + Explanation (Between Scrubber and Table) */}
-            <div className="lev-toggle-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
-                <div className="lev-toggle-wrapper" style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 16, maxWidth: 800, width: '100%' }}>
+            <div className="lev-toggle-container" style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 20 }}>
+                <div className="lev-toggle-wrapper" style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 16, maxWidth: 650, width: '100%' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
                         <label className="lev-label">Cone of Uncertainty Mode</label>
                         <div className="lev-toggle-group">

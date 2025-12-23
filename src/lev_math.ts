@@ -5,7 +5,7 @@ import type { LifeTable } from './lev_data_loader';
 // 0. Constants & Config
 // ------------------------------------------------------------------
 export const MAX_AGE_INTERNAL = 200;
-export const HEALTH_MIDPOINT_BIOAGE = 72;
+export const HEALTH_MIDPOINT_BIOAGE = 85;
 export const HEALTH_STEEPNESS = 9;
 export const HEALTHSPAN_THRESHOLD = 0.70;
 export const PROGRESS_RATE_BASE = 0.018; // 1.8% per year
