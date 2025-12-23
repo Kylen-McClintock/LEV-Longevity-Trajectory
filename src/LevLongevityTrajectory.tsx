@@ -714,7 +714,7 @@ export default function LevLongevityTrajectory() {
                         <p style={{ marginBottom: 12 }}>
                             The "Health Index" (0-100%) is an inverse measure of <strong>Deficit Accumulation</strong> (often called a Frailty Index).
                             <br />
-                            <span style={{ opacity: 0.7 }}>0% = Perfect Robustness</span> | <span style={{ opacity: 0.7 }}>100% = Systemic Failure (Death)</span>
+                            <span style={{ opacity: 0.7 }}>100% = Perfect Robustness</span> | <span style={{ opacity: 0.7 }}>0% = Systemic Failure (Death)</span>
                             <br />
                             Unlike the binary "Alive/Dead" metric, this index tracks the accumulation of sub-clinical damage (senescent cells, stiffening arteries, DNA breaks). A LEV protocol doesn't just aim to keep you "Alive"; it aims to keep your Health Index above 80% (the "Functional Threshold"). If this Index drops below 40%, survival probability plummets regardless of Chronological Age.
                         </p>
@@ -725,19 +725,20 @@ export default function LevLongevityTrajectory() {
                             <br />
                             It represents the variance in <strong>Scientific Discovery</strong>, governed by a Poisson process of breakthroughs.
                             <br />
-                            <strong>To Accelerate (Move to Top of Cone):</strong>
+                            <strong>Key Accelerants (Move to Top of Cone):</strong>
                             <ul style={{ paddingLeft: 16, marginTop: 4 }}>
-                                <li>Log-scale reduction in DNA sequencing/synthesis costs.</li>
-                                <li>AI-driven drug discovery (e.g., AlphaFold 3 success).</li>
-                                <li>Regulatory reform (treating "Aging" as a reimbursable indication).</li>
+                                <li><strong>Recursive Self-Improving AI:</strong> Increasing overall intelligence to solve biological complexity.</li>
+                                <li><strong>Virtual Cell Simulations:</strong> Accurate in-silico models grounded to reality, reducing trial-and-error.</li>
+                                <li><strong>Automated Wetlabs:</strong> Robotically validating science at scale, closing the loop with AI.</li>
+                                <li><strong>Capital Inflows:</strong> Massive government & public investment to reduce the medical cost burden of aging populations.</li>
                             </ul>
-                            <strong>To Stall (Move to Bottom of Cone):</strong>
+                            <strong>Key Stalls (Move to Bottom of Cone):</strong>
                             <ul style={{ paddingLeft: 16, marginTop: 4 }}>
-                                <li>Clinical trial failures in late-stage senolytics.</li>
-                                <li>Economic stagnation limiting research funding.</li>
-                                <li>"Theranos-style" setbacks reducing public trust.</li>
+                                <li><strong>Geopolitical Conflict:</strong> Global chaos diverting resources away from long-term science.</li>
+                                <li><strong>Misaligned AI:</strong> Powerful systems hijacked by chaos agents or used for destruction rather than progress.</li>
+                                <li><strong>Economic Stagnation:</strong> Systemic collapse limiting the funding required for expensive R&D.</li>
                             </ul>
-                            Use the <strong>Optimism Slider</strong> to bias this probability distribution towards the "AI Singularity" (Fast) or "Stagnation" (Slow) scenarios.
+                            Use the <strong>Optimism Slider</strong> to bias this probability distribution.
                         </p>
                     </div>
                 )}
