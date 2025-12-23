@@ -105,13 +105,14 @@ export default function LevLongevityTrajectory() {
     // "See difference better longevity protocols have on outcomes"
     // We assume these represent "Someone at that level", so we start them at that score to show steady-state difference immediately.
     const cohortScore25 = useMemo(() => simulateCohort(age, sex, 25, 25, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
-    const cohortScore50 = useMemo(() => simulateCohort(age, sex, 50, 50, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
+
     const cohortScore75 = useMemo(() => simulateCohort(age, sex, 75, 75, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
     const cohortScore95 = useMemo(() => simulateCohort(age, sex, 95, 95, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
 
     // Cohorts for "Cone of Uncertainty" (Medical Progress Variability 5th-95th)
     const cohortFan5 = useMemo(() => simulateCohort(age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear, true, 5), [age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear]);
     const cohortFan25 = useMemo(() => simulateCohort(age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear, true, 25), [age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear]);
+    const cohortFan50 = useMemo(() => simulateCohort(age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear]);
     const cohortFan75 = useMemo(() => simulateCohort(age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear, true, 75), [age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear]);
     const cohortFan95 = useMemo(() => simulateCohort(age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear, true, 95), [age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear]);
 
@@ -501,11 +502,17 @@ export default function LevLongevityTrajectory() {
                                     }}
                                     className="lev-slider"
                                     style={{ width: '100%' }}
+                                    list="scrub-ticks"
                                 />
+                                <datalist id="scrub-ticks">
+                                    {Array.from({ length: 11 }, (_, i) => currentYear + i * 10).map(y => (
+                                        <option key={y} value={y} label={`${y}`} />
+                                    ))}
+                                </datalist>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginTop: 4, opacity: 0.5 }}>
-                                    <span>{currentYear}</span>
-                                    <span>Scrub Year</span>
-                                    <span>{currentYear + 100}</span>
+                                    {Array.from({ length: 6 }, (_, i) => currentYear + i * 20).map(y => (
+                                        <span key={y}>{y}</span>
+                                    ))}
                                 </div>
                             </div>
                         </div>
@@ -605,10 +612,9 @@ export default function LevLongevityTrajectory() {
             {/* Bottom: Detailed Scrubber Data */}
             <div style={{ marginTop: 20, background: 'rgba(0,0,0,0.3)', borderRadius: 8, padding: 16, border: '1px solid rgba(255,255,255,0.1)' }}>
                 <div className="lev-stat-title" style={{ marginBottom: 12 }}>
-                    SCENARIO DETAILS AT YEAR {scrubYear} (Chronological Age {Math.floor(scrubAge)})
+                    SCENARIO DETAILS AT YEAR {scrubYear} (Chronological Age {scrubYear - (currentYear - age)})
                 </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 1fr) 1fr 1fr 1fr 1fr', gap: 10, fontSize: 11, marginBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: 6, opacity: 0.7 }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 16, fontSize: 11, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 8, marginBottom: 8, opacity: 0.5 }}>
                     <div>LONGEVITY SCORE</div>
                     <div style={{ textAlign: 'right' }}>BIOLOGICAL AGE</div>
                     <div style={{ textAlign: 'right' }}>PACE OF AGING</div>
@@ -616,94 +622,91 @@ export default function LevLongevityTrajectory() {
                     <div style={{ textAlign: 'right' }}>HEALTH INDEX</div>
                 </div>
 
-                {[95, 75, 50, 25].map(q => {
-                    const c = q === 95 ? cohortScore95 : q === 75 ? cohortScore75 : q === 50 ? cohortScore50 : cohortScore25;
-                    const p = c.pace[scrubIndex] ?? 0;
-                    const s = c.annualSurvival[scrubIndex] ?? 0;
-                    const h = c.health[scrubIndex] ?? 0;
-                    const b = c.bioAge[scrubIndex] ?? age; // default to chron age if missing
+                {[
+                    { label: '95th Percentile', c: cohortFan95 },
+                    { label: '75th Percentile', c: cohortFan75 },
+                    { label: '50th Percentile', c: cohortFan50 },
+                    { label: '25th Percentile', c: cohortFan25 },
+                    { label: '5th Percentile', c: cohortFan5 },
+                ].map((row, i) => {
+                    const idx = scrubYear - currentYear;
+                    if (idx < 0 || idx >= row.c.survival.length) return null;
 
-                    const isMed = q === targetScore; // Highlight matches user
-                    const col = isMed ? '#78B999' : 'rgba(255,255,255,0.5)';
-                    const bg = isMed ? 'rgba(120, 185, 153, 0.1)' : 'transparent';
+                    const bioAge = row.c.bioAge[idx];
+                    const pace = row.c.pace[idx];
+                    const surv = row.c.annualSurvival[idx];
+                    const h = row.c.health[idx];
 
                     return (
-                        <div key={q} style={{ display: 'grid', gridTemplateColumns: 'minmax(120px, 1fr) 1fr 1fr 1fr 1fr', gap: 10, fontSize: isMed ? 13 : 12, padding: '6px 0', fontWeight: isMed ? 600 : 400, color: col, backgroundColor: bg, alignItems: 'center' }}>
-                            <div>{q}th Percentile</div>
-                            <div style={{ textAlign: 'right' }}>{b.toFixed(1)}</div>
-                            <div style={{ textAlign: 'right', color: p < 0 ? '#52A7C3' : 'inherit' }}>{p.toFixed(2)} / yr</div>
-                            <div style={{ textAlign: 'right' }}>{(s * 100).toFixed(1)}%</div>
+                        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 16, fontSize: 12, padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', color: i === 1 ? '#78B999' : 'rgba(255,255,255,0.7)', fontWeight: i === 1 ? 600 : 400, background: i === 1 ? 'rgba(120, 185, 153, 0.1)' : 'transparent' }}>
+                            <div>{row.label}</div>
+                            <div style={{ textAlign: 'right' }}>{bioAge.toFixed(1)}</div>
+                            <div style={{ textAlign: 'right' }}>{pace.toFixed(2)} / yr</div>
+                            <div style={{ textAlign: 'right' }}>{(surv * 100).toFixed(1)}%</div>
                             <div style={{ textAlign: 'right' }}>{h.toFixed(2)}</div>
                         </div>
-                    )
+                    );
                 })}
             </div>
 
-            {/* Model Analysis & Methodology */}
-            <div style={{ marginTop: 20, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 20 }}>
-                <button
-                    onClick={() => setShowAnalysis(!showAnalysis)}
-                    style={{
-                        background: 'none', border: 'none', color: '#78B999',
-                        fontSize: 12, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6,
-                        padding: 0
-                    }}
-                >
-                    <span style={{ fontSize: 14 }}>{showAnalysis ? '▼' : '▶'}</span>
-                    MODEL ANALYSIS & METHODOLOGY
-                </button>
+            <div style={{ marginTop: 24, fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.8)', maxWidth: 800 }}>
+                <p>
+                    <strong>How to interpret this graph:</strong> The dashed orange line represents the "Status Quo" trajectory (standard aging). The solid green line represents your specific scenario based on adherence and genetics. The green shaded regions represent the "Cone of Uncertainty" for medical progress—the range of possible futures depending on scientific breakthroughs.
+                </p>
+
+                <div style={{ marginTop: 8 }}>
+                    <button
+                        onClick={() => setShowAnalysis(!showAnalysis)}
+                        style={{ background: 'transparent', border: 'none', color: '#78B999', cursor: 'pointer', padding: 0, fontSize: 12, textDecoration: 'underline' }}>
+                        {showAnalysis ? 'Hide Model Analysis & Methodology' : 'Show Model Analysis & Methodology ▼'}
+                    </button>
+                </div>
 
                 {showAnalysis && (
-                    <div style={{ marginTop: 16, fontSize: 11, lineHeight: 1.6, color: 'rgba(255,255,255,0.8)', maxWidth: 800 }}>
+                    <div style={{ marginTop: 16, padding: 16, background: 'rgba(255,255,255,0.05)', borderRadius: 8 }}>
+                        <h4 style={{ color: '#78B999', marginTop: 0, marginBottom: 8 }}>PART 1: THE CORE MECHANICS</h4>
 
-                        <h4 style={{ color: 'white', marginTop: 0, marginBottom: 8 }}>1. Defining the Inputs: Longevity Score & Pace of Aging</h4>
+                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>1. The Gompertz-Makeham Law of Mortality</h4>
                         <p style={{ marginBottom: 12 }}>
-                            The primary input, the "Longevity Protocol Score", is not arbitrary. It represents a percentile ranking on the <strong>Pace of Aging</strong> distribution (calibrated against benchmarks like DunedinPACE).
+                            Human mortality increases exponentially with age, doubling roughly every 8 years. In our model, this is the "Gravity" that pulls the survival curve down.
                             <br />
-                            A <strong>95th Percentile Score</strong> does not just mean "healthy habits"—it mathematically defines an individual whose biological aging rate is slower than 95% of the population (e.g., aging at 0.68 biological years per calendar year). Conversely, a 5th percentile score implies accelerated aging (&gt;1.3 years/year). This slope is the fundamental variable that battles against the Gompertz curve.
+                            <em>Formula:</em> M(t) = M_0 * e^(Gt) + A <br />
+                            LEV requires reducing the biological age `t` faster than time passes, effectively reversing this exponential climb.
                         </p>
 
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>2. The Math of LEV: Escaping the Gompertz Curve</h4>
+                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>2. The Rogers Diffusion Curve (Adoption S-Curve)</h4>
                         <p style={{ marginBottom: 12 }}>
-                            Longevity Escape Velocity (LEV) is defined as the point where the <strong>Rate of Rejuvenation</strong> (from medical progress) exceeds the <strong>Rate of Damage Accumulation</strong> (Pace of Aging).
+                            Medical breakthroughs don't reach everyone instantly. We model adoption using a classic S-curve (Rogers, 1962).
                             <br />
-                            Our model computes this year-over-year. For individuals with a slow Pace of Aging (Scores &gt;90), the "escape velocity" required is lower—they are moving targets that are easier to catch. For those with accelerated aging (Scores &lt;20), the medical technology must be exponentially more powerful to reverse their rapid damage accumulation, making LEV significantly harder to achieve.
+                            <span style={{ color: '#78B999' }}>Innovators (Top 2.5%)</span> get therapies ~15 years before laggards.
+                            In our model, your <strong>Longevity Score</strong> determines where you sit on this curve. A score of 95 puts you in the "Innovator" bracket, granting early access to rejuvenation tech.
                         </p>
 
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>3. Adoption Lags: The Diffusion of Innovation</h4>
+                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>3. Biological Age vs. Chronological Age</h4>
                         <p style={{ marginBottom: 12 }}>
-                            Science is not distributed instantly. We model the <strong>Time Lag</strong> between a theoretical breakthrough and its application to the user based on the <strong>Rogers Diffusion of Innovation Curve</strong>:
-                            <ul style={{ paddingLeft: 16, marginTop: 4 }}>
-                                <li><strong>Innovators (95th+ Percentile):</strong> 0-year lag. They access therapies via trials, off-label use, or medical tourism immediately upon viability.</li>
-                                <li><strong>The Majority (50th Percentile):</strong> ~15-year lag. They must wait for regulatory approval (FDA), insurance negotiation, and standard-of-care guidances.</li>
-                                <li><strong>Laggards & Refusers (5th Percentile):</strong> Infinite or extreme lag. Due to skepticism, cost, or ideology, they may never adopt rejuvenation therapies, rendering their LEV probability near zero even in a technological utopia.</li>
-                            </ul>
+                            We decouple the two. Your "Pace of Aging" (e.g., 0.85/year) determines how fast your Biological Age accumulates.
+                            <br />
+                            <em>Simulation:</em> At 0.8 pace, you only age 0.8 biological years for every chronological year. This flattens the Gompertz curve, buying you decades of time for LEV to arrive.
                         </p>
 
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>4. The "Stacked" Disadvantage: Initial State vs. Rate</h4>
+                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>4. The Threshold of Escape Velocity (LEV)</h4>
                         <p style={{ marginBottom: 12 }}>
-                            The model distinguishes between <strong>Intercept (Initial BioAge)</strong> and <strong>Slope (Pace of Aging)</strong>. A low score penalizes the user twice:
-                            <br />
-                            1. <strong>Higher Initial BioAge:</strong> A 40-year-old with a Score of 20 starts with the frailty hazards of a 55-year-old.
-                            <br />
-                            2. <strong>Faster Decay:</strong> They continue to accumulate damage faster than normal.
-                            <br />
-                            This compounding effect explains why the survival curves for low-score individuals collapse so dramatically compared to the baseline.
+                            LEV occurs when the "Damage Repair Rate" exceeds the "Damage Accumulation Rate." In our model, this is a tipping point where `d(BioAge)/dt` becomes negative. Once this happens, your Life Expectancy diverges to "Indefinite" (statistically limited only by accidents/non-age causes, modeled here as a 90% cap).
                         </p>
 
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>5. Modeling Uncertainty: Brownian Motion</h4>
+                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>5. Stochasticity (The Cone of Uncertainty)</h4>
                         <p style={{ marginBottom: 12 }}>
-                            The "Fan Bands" (Green zones) represent the cone of uncertainty in future medical progress. We predict progress using a stochastic process (Geometric Brownian Motion) where the "Optimism" slider adjusts the <strong>Drift</strong> (mean speed) and the nature of discovery implies a <strong>Volatility</strong> (Sigma). Looking further into the future (Horizon Year) naturally widens this cone, as long-term prediction errors compound.
+                            The future is not a single line. The green "Fan Bands" represent 1,000 Monte Carlo simulations of medical progress variance.
+                            <br />
+                            - <strong>Top Band (95th percentile):</strong> A "Singularity" scenario (AI solves biology quickly).
+                            <br />
+                            - <strong>Bottom Band (5th percentile):</strong> A "Stagnation" scenario (regulatory gridlock, scientific failures).
                         </p>
 
                         <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>6. The Fundamental Limit: 90% Cap</h4>
                         <p style={{ marginBottom: 12 }}>
                             Finally, we enforce a "Hard Reality" cap. Even if the math allows for 100% survival, we cap LEV probability at 90%. This accounts for <strong>Systems Biology limitations</strong>—unknown failure modes (e.g., lysosomal aggregates, nuclear mutations, or non-biological risks) that current "Damage Repair" paradigms (SENS) do not account for. It acknowledges that biology often has a "weakest link" that no amount of optimism can assume away.
                         </p>
-
-                        <div style={{ marginTop: 20, fontSize: 10, opacity: 0.5, borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: 8 }}>
-                            <em>Disclaimer: This model is a probabilistic simulation using simplified mathematical abstractions of demographic and biological processes. It is for educational exploration only and does not constitute a guaranteed medical forecast.</em>
-                        </div>
 
                         <h4 style={{ color: '#78B999', marginTop: 24, marginBottom: 8, borderTop: '1px solid rgba(120, 185, 153, 0.3)', paddingTop: 16 }}>PART 2: DEEP DIVE & ASSUMPTIONS</h4>
 
@@ -735,14 +738,16 @@ export default function LevLongevityTrajectory() {
                             <strong>Key Accelerants (Move to Top of Cone):</strong>
                             <ul style={{ paddingLeft: 16, marginTop: 4 }}>
                                 <li><strong>The GPT-3 Moment for Biology:</strong> Once partial age reversal is proven in humans, it will trigger a "Sputnik Moment." Massive capital inflows (public & private) will flood the sector, similar to the AI boom of 2025/2026.</li>
-                                <li><strong>Economic Imperative:</strong> With a median willingness-to-pay of <strong>$129k per extra year of healthy life</strong>, longevity is poised to become the world's largest industry. Governments are highly motivated to subsidize these therapies to eliminate the crippling cost burden of senior care.</li>
+                                <li><strong>Economic Imperative:</strong> With a median willingness-to-pay of <strong>$129k per extra year of healthy life</strong>, longevity is poised to become one of the world's largest industries. Governments are highly motivated to subsidize these therapies to eliminate the crippling cost burden of senior care.</li>
                                 <li><strong>Recursive AI & Simulation:</strong> Self-improving AI models grounding virtual cell simulations in reality, allowing for automated, high-throughput wetlab validation.</li>
+                                <li><strong>Fundamental Breakthroughs:</strong> Log-scale reductions in DNA sequencing/synthesis costs and successful regulatory reform (treating "Aging" as a reimbursable indication).</li>
                             </ul>
                             <strong>Key Stalls (Move to Bottom of Cone):</strong>
                             <ul style={{ paddingLeft: 16, marginTop: 4 }}>
                                 <li><strong>AI Crackdown:</strong> Governments acting to shut down overall AI progress due to chaos/misalignment fears, causing collateral damage to AI-accelerated biology.</li>
                                 <li><strong>Geopolitical Conflict:</strong> Global instability diverting focus and supply chains away from long-term scientific abundance.</li>
                                 <li><strong>Terrorist/Chaos Agents:</strong> Powerful AIs falling into the wrong hands, forcing draconian regulations that stifle open scientific progress.</li>
+                                <li><strong>Scientific & Economic Setbacks:</strong> Late-stage clinical trial failures (e.g., in senolytics), economic stagnation limiting R&D funding, or "Theranos-style" frauds reducing public trust.</li>
                             </ul>
                             Use the <strong>Optimism Slider</strong> to bias this probability distribution.
                         </p>
