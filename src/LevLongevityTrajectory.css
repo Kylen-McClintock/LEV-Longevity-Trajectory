@@ -216,8 +216,33 @@
   margin-top: -10px;
 }
 
+.lev-scenario.lev-model-analysis {
+  margin-top: 40px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  font-size: 13px;
+  /* Increased desktop font size */
+  line-height: 1.6;
+  opacity: 0.8;
+}
+
+@media (max-width: 900px) {
+  .lev-model-analysis {
+    font-size: 15px;
+    /* Even larger on mobile */
+    opacity: 0.95;
+  }
+}
+
+@media (min-width: 901px) {
+  .lev-mobile-only {
+    display: none !important;
+  }
+}
+
 .lev-scenario-details {
-  margin-top: 20px;
+  margin-top: 5px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 8px;
   padding: 16px;
@@ -226,7 +251,7 @@
 
 @media (max-width: 900px) {
   .lev-scenario-details {
-    margin-top: 80px;
+    margin-top: 20px;
   }
 
   .lev-desktop-only {
@@ -241,14 +266,14 @@
 }
 
 .lev-toggle-container {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 @media (max-width: 900px) {
   .lev-toggle-container {
-    margin-top: 20px;
-    /* Space from Scrubber - Tighter */
-    margin-bottom: 10px;
+    margin-top: 10px;
+    /* Tighter mobile gap */
+    margin-bottom: 5px;
   }
 }
 
