@@ -104,12 +104,12 @@ export default function LevLongevityTrajectory() {
     // Comparison Cohorts (Fixed Scores: 95, 75, 50, 25)
     // "See difference better longevity protocols have on outcomes"
     // We assume these represent "Someone at that level", so we start them at that score to show steady-state difference immediately.
-    const cohortScore5 = useMemo(() => simulateCohort(age, sex, 5, 5, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
-    const cohortScore25 = useMemo(() => simulateCohort(age, sex, 25, 25, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
-    const cohortScore50 = useMemo(() => simulateCohort(age, sex, 50, 50, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
+    const cohortScore5 = useMemo(() => simulateCohort(age, sex, currentScore, 5, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, currentScore, horizonYear, optimism, lifeTable, currentYear]);
+    const cohortScore25 = useMemo(() => simulateCohort(age, sex, currentScore, 25, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, currentScore, horizonYear, optimism, lifeTable, currentYear]);
+    const cohortScore50 = useMemo(() => simulateCohort(age, sex, currentScore, 50, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, currentScore, horizonYear, optimism, lifeTable, currentYear]);
 
-    const cohortScore75 = useMemo(() => simulateCohort(age, sex, 75, 75, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
-    const cohortScore95 = useMemo(() => simulateCohort(age, sex, 95, 95, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, horizonYear, optimism, lifeTable, currentYear]);
+    const cohortScore75 = useMemo(() => simulateCohort(age, sex, currentScore, 75, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, currentScore, horizonYear, optimism, lifeTable, currentYear]);
+    const cohortScore95 = useMemo(() => simulateCohort(age, sex, currentScore, 95, horizonYear, optimism, lifeTable, currentYear, true, 50), [age, sex, currentScore, horizonYear, optimism, lifeTable, currentYear]);
 
     // Cohorts for "Cone of Uncertainty" (Medical Progress Variability 5th-95th)
     const cohortFan5 = useMemo(() => simulateCohort(age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear, true, 5), [age, sex, currentScore, targetScore, horizonYear, optimism, lifeTable, currentYear]);
@@ -589,23 +589,33 @@ export default function LevLongevityTrajectory() {
                 </div>
             </div> {/* Close lev-main-layout */}
 
-            {/* Cone Toggle (Between Scrubber and Table) - Visible on Both Mobile and Desktop */}
-            <div style={{ marginTop: 20, marginBottom: 20, display: 'flex', justifyContent: 'center' }}>
-                <div style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                    <label className="lev-label">Cone of Uncertainty Mode</label>
-                    <div className="lev-toggle-group">
-                        <button
-                            className={`lev-toggle-btn ${coneMode === 'uncertainty' ? 'active' : ''}`}
-                            onClick={() => setConeMode('uncertainty')}
-                        >
-                            Medical Progress
-                        </button>
-                        <button
-                            className={`lev-toggle-btn ${coneMode === 'protocol' ? 'active' : ''}`}
-                            onClick={() => setConeMode('protocol')}
-                        >
-                            Protocol Variance
-                        </button>
+            {/* Cone Toggle + Explanation (Between Scrubber and Table) */}
+            <div className="lev-toggle-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
+                <div className="lev-toggle-wrapper" style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 16, maxWidth: 800, width: '100%' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                        <label className="lev-label">Cone of Uncertainty Mode</label>
+                        <div className="lev-toggle-group">
+                            <button
+                                className={`lev-toggle-btn ${coneMode === 'uncertainty' ? 'active' : ''}`}
+                                onClick={() => setConeMode('uncertainty')}
+                            >
+                                Medical Progress
+                            </button>
+                            <button
+                                className={`lev-toggle-btn ${coneMode === 'protocol' ? 'active' : ''}`}
+                                onClick={() => setConeMode('protocol')}
+                            >
+                                Protocol Variance
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Explanation Text */}
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4, borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 16 }}>
+                        {coneMode === 'uncertainty'
+                            ? <span><strong>Medical Progress (Green)</strong>: Shows variation in <em>scientific luck</em> (5th-95th percentile speeds). Assumes <strong>your current protocol</strong>.</span>
+                            : <span><strong>Protocol Variance (Purple)</strong>: Shows variation in <em>future choices</em>. Simulates switching from your current score to a 5th-95th percentile target. Assumes <strong>median science</strong>.</span>
+                        }
                     </div>
                 </div>
             </div>
@@ -617,14 +627,6 @@ export default function LevLongevityTrajectory() {
                     <span style={{ fontWeight: 'normal', opacity: 0.5, marginLeft: 8 }}>
                         AT YEAR {scrubYear} (Age {scrubYear - (currentYear - age)})
                     </span>
-                </div>
-
-                {/* Dynamic Explanation Text */}
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', marginBottom: 16, lineHeight: 1.4, background: 'rgba(255,255,255,0.03)', padding: 10, borderRadius: 6 }}>
-                    {coneMode === 'uncertainty'
-                        ? "Showing how YOUR current protocol performs under different Medical Progress speeds (5th to 95th percentile luck). Assumes your specific adherence level."
-                        : "Showing how DIFFERENT protocols (Adherence Scores) perform under Median Medical Progress. Assumes average scientific luck."
-                    }
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', gap: 16, fontSize: 11, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 8, marginBottom: 8, opacity: 0.5 }}>

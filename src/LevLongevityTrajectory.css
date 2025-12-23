@@ -239,3 +239,30 @@
     display: none !important;
   }
 }
+
+.lev-toggle-container {
+  margin-top: 20px;
+}
+
+@media (max-width: 900px) {
+  .lev-toggle-container {
+    margin-top: 40px;
+    /* Space from Scrubber */
+  }
+}
+
+@media (max-width: 600px) {
+  .lev-toggle-wrapper {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .lev-toggle-wrapper>div:last-child {
+    border-left: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-left: 0 !important;
+    padding-top: 12px;
+    width: 100%;
+  }
+}
