@@ -128,8 +128,6 @@ export default function LevLongevityTrajectory() {
     // (My previous quantile logic: 95th quantile was BEST progress).
     // So mapping is preserved direction-wise. High score = better.
 
-
-    // 3. Stats Calculations
     // 3. Stats Calculations
     const levProbMedian = calculateLevProb(age, targetScore, optimism, horizonYear, lifeTable, currentYear, cohortTargetUser.survival);
 
@@ -209,8 +207,6 @@ export default function LevLongevityTrajectory() {
         .y1((d) => yScale(d.y1))
         .curve(curveMonotoneX);
 
-    // Prepare Fan Data
-    // We need to zip arrays: age+i, y_5, y_25, ...
     // Prepare Fan Data
     // We need to zip arrays: age+i, y_5, y_25, ...
     const fanData = useMemo(() => {
@@ -342,164 +338,346 @@ export default function LevLongevityTrajectory() {
             {/* Main Layout */}
             <div className="lev-main-layout">
 
-                {/* Left: Chart */}
-                <div className="lev-chart-area" ref={containerRef}>
-                    {/* Toolbar inside chart */}
-                    <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
-                        <div className="lev-toggle-group">
-                            <button className={`lev-toggle-btn ${viewMode === 'survival' ? 'active' : ''}`} onClick={() => setViewMode('survival')}>Survival</button>
-                            <button className={`lev-toggle-btn ${viewMode === 'health' ? 'active' : ''}`} onClick={() => setViewMode('health')}>Health</button>
-                            <button className={`lev-toggle-btn ${viewMode === 'aliveHealthy' ? 'active' : ''}`} onClick={() => setViewMode('aliveHealthy')}>Alive+Healthy</button>
+                {/* Left Column Wrapper */}
+                <div className="lev-left-column" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                    {/* Chart */}
+                    <div className="lev-chart-area" ref={containerRef}>
+                        {/* Toolbar inside chart */}
+                        <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 10 }}>
+                            <div className="lev-toggle-group">
+                                <button className={`lev-toggle-btn ${viewMode === 'survival' ? 'active' : ''}`} onClick={() => setViewMode('survival')}>Survival</button>
+                                <button className={`lev-toggle-btn ${viewMode === 'health' ? 'active' : ''}`} onClick={() => setViewMode('health')}>Health</button>
+                                <button className={`lev-toggle-btn ${viewMode === 'aliveHealthy' ? 'active' : ''}`} onClick={() => setViewMode('aliveHealthy')}>Alive+Healthy</button>
+                            </div>
                         </div>
-                    </div>
 
-                    <svg width={width} height={CHART_Height}>
-                        <g transform={`translate(${CHART_MARGIN.left}, ${CHART_MARGIN.top})`}>
+                        <svg width={width} height={CHART_Height}>
+                            <g transform={`translate(${CHART_MARGIN.left}, ${CHART_MARGIN.top})`}>
 
-                            {/* Grid/Axes */}
-                            <line x1={0} y1={innerHeight} x2={innerWidth} y2={innerHeight} stroke="white" strokeOpacity={0.2} />
-                            <line x1={0} y1={innerHeight} x2={innerWidth} y2={innerHeight} stroke="white" strokeOpacity={0.2} />
-                            <line x1={0} y1={0} x2={0} y2={innerHeight} stroke="white" strokeOpacity={0.2} />
+                                {/* Grid/Axes */}
+                                <line x1={0} y1={innerHeight} x2={innerWidth} y2={innerHeight} stroke="white" strokeOpacity={0.2} />
+                                <line x1={0} y1={innerHeight} x2={innerWidth} y2={innerHeight} stroke="white" strokeOpacity={0.2} />
+                                <line x1={0} y1={0} x2={0} y2={innerHeight} stroke="white" strokeOpacity={0.2} />
 
-                            {/* Y Axis Label */}
-                            <text
-                                transform={`rotate(-90)`}
-                                x={-innerHeight / 2}
-                                y={-35}
-                                fill="white"
-                                fillOpacity={0.6}
-                                fontSize={10}
-                                textAnchor="middle"
-                            >
-                                {viewMode === 'survival' ? 'Survival Probability (%)' :
-                                    viewMode === 'health' ? 'Health Index (%)' :
-                                        'Alive + Healthy Probability (%)'}
-                            </text>
+                                {/* Y Axis Label */}
+                                <text
+                                    transform={`rotate(-90)`}
+                                    x={-innerHeight / 2}
+                                    y={-35}
+                                    fill="white"
+                                    fillOpacity={0.6}
+                                    fontSize={10}
+                                    textAnchor="middle"
+                                >
+                                    {viewMode === 'survival' ? 'Survival Probability (%)' :
+                                        viewMode === 'health' ? 'Health Index (%)' :
+                                            'Alive + Healthy Probability (%)'}
+                                </text>
 
-                            {/* X Ticks (Age) */}
-                            {xScale.ticks(10).map(t => (
-                                <g key={t} transform={`translate(${xScale(t)}, ${innerHeight})`}>
-                                    <line y2={6} stroke="white" strokeOpacity={0.2} />
-                                    <text y={20} fill="white" fillOpacity={0.5} fontSize={10} textAnchor="middle">{t}</text>
-                                    {/* Calendar Year below */}
-                                    <text y={32} fill="white" fillOpacity={0.3} fontSize={9} textAnchor="middle">
-                                        {currentYear + (t - age)}
-                                    </text>
+                                {/* X Ticks (Age) */}
+                                {xScale.ticks(10).map(t => (
+                                    <g key={t} transform={`translate(${xScale(t)}, ${innerHeight})`}>
+                                        <line y2={6} stroke="white" strokeOpacity={0.2} />
+                                        <text y={20} fill="white" fillOpacity={0.5} fontSize={10} textAnchor="middle">{t}</text>
+                                        {/* Calendar Year below */}
+                                        <text y={32} fill="white" fillOpacity={0.3} fontSize={9} textAnchor="middle">
+                                            {currentYear + (t - age)}
+                                        </text>
+                                    </g>
+                                ))}
+
+                                {/* Y Ticks */}
+                                {yScale.ticks(5).map(t => (
+                                    <g key={t} transform={`translate(0, ${yScale(t)})`}>
+                                        <line x2={-6} stroke="white" strokeOpacity={0.2} />
+                                        <text x={-10} dy={3} fill="white" fillOpacity={0.5} fontSize={10} textAnchor="end">
+                                            {t * 100}%
+                                        </text>
+                                    </g>
+                                ))}
+
+                                {/* Today Marker */}
+                                <line x1={xScale(age)} y1={0} x2={xScale(age)} y2={innerHeight}
+                                    stroke="white" strokeDasharray="4 4" strokeOpacity={0.3} />
+                                <text x={xScale(age)} y={-8} fill="white" fillOpacity={0.5} fontSize={10} textAnchor="middle">
+                                    Today ({age})
+                                </text>
+
+                                {/* Fan Bands (Target) */}
+                                {/* 5-95 */}
+                                <path d={areaGen.y0((d: any) => yScale(d.v5)).y1((d: any) => yScale(d.v95))(fanData) || ''}
+                                    fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.15} />
+                                {/* 25-75 */}
+                                <path d={areaGen.y0((d: any) => yScale(d.v25)).y1((d: any) => yScale(d.v75))(fanData) || ''}
+                                    fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.3} />
+
+                                {/* Current Scenario Line (Dashed) */}
+                                <path d={lineGen(getCurveData(cohortCurrent)) || ''}
+                                    fill="none" stroke="#E89A6B" strokeWidth={2} strokeOpacity={0.8} strokeDasharray="6 4" />
+
+                                {/* User Selection Line */}
+                                <path d={lineGen(getCurveData(cohortTargetUser)) || ''}
+                                    fill="none" stroke="#78B999" strokeWidth={3} />
+
+                                {/* Scrubber Line */}
+                                <g transform={`translate(${scrubX}, 0)`}>
+                                    <line y2={innerHeight} stroke="white" strokeWidth={1} />
+                                    <circle cy={yScale(scrubValues[viewMode])} r={4} fill="white" />
                                 </g>
-                            ))}
+                            </g>
 
-                            {/* Y Ticks */}
-                            {yScale.ticks(5).map(t => (
-                                <g key={t} transform={`translate(0, ${yScale(t)})`}>
-                                    <line x2={-6} stroke="white" strokeOpacity={0.2} />
-                                    <text x={-10} dy={3} fill="white" fillOpacity={0.5} fontSize={10} textAnchor="end">
-                                        {t * 100}%
-                                    </text>
+                            {/* Legend Overlay - Moved to top left or handled better to avoid overlap */}
+                            <g transform={`translate(${CHART_MARGIN.left + 20}, ${CHART_MARGIN.top + 20})`}>
+                                <rect width="180" height="50" fill="black" fillOpacity="0.6" rx="4" />
+                                <g transform="translate(10, 20)">
+                                    <line x2="20" stroke="#E89A6B" strokeDasharray="6 4" strokeWidth="2" />
+                                    <text x="28" y="4" fill="#E89A6B" fontSize="10">Status Quo</text>
                                 </g>
-                            ))}
-
-                            {/* Today Marker */}
-                            <line x1={xScale(age)} y1={0} x2={xScale(age)} y2={innerHeight}
-                                stroke="white" strokeDasharray="4 4" strokeOpacity={0.3} />
-                            <text x={xScale(age)} y={-8} fill="white" fillOpacity={0.5} fontSize={10} textAnchor="middle">
-                                Today ({age})
-                            </text>
-
-                            {/* Fan Bands (Target) */}
-                            {/* 5-95 */}
-                            <path d={areaGen.y0((d: any) => yScale(d.v5)).y1((d: any) => yScale(d.v95))(fanData) || ''}
-                                fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.15} />
-                            {/* 25-75 */}
-                            <path d={areaGen.y0((d: any) => yScale(d.v25)).y1((d: any) => yScale(d.v75))(fanData) || ''}
-                                fill={coneMode === 'uncertainty' ? "#78B999" : "#9D4EDD"} fillOpacity={0.3} />
-
-                            {/* Current Scenario Line (Dashed) */}
-                            <path d={lineGen(getCurveData(cohortCurrent)) || ''}
-                                fill="none" stroke="#E89A6B" strokeWidth={2} strokeOpacity={0.8} strokeDasharray="6 4" />
-
-                            {/* User Selection Line */}
-                            <path d={lineGen(getCurveData(cohortTargetUser)) || ''}
-                                fill="none" stroke="#78B999" strokeWidth={3} />
-
-                            {/* Scrubber Line */}
-                            <g transform={`translate(${scrubX}, 0)`}>
-                                <line y2={innerHeight} stroke="white" strokeWidth={1} />
-                                <circle cy={yScale(scrubValues[viewMode])} r={4} fill="white" />
+                                <g transform="translate(10, 40)">
+                                    <line x2="20" stroke="#78B999" strokeWidth="3" />
+                                    <text x="28" y="4" fill="#78B999" fontSize="10">Protocol Target</text>
+                                </g>
                             </g>
-                        </g>
+                        </svg>
 
-                        {/* Legend Overlay - Moved to top left or handled better to avoid overlap */}
-                        <g transform={`translate(${CHART_MARGIN.left + 20}, ${CHART_MARGIN.top + 20})`}>
-                            <rect width="180" height="50" fill="black" fillOpacity="0.6" rx="4" />
-                            <g transform="translate(10, 20)">
-                                <line x2="20" stroke="#E89A6B" strokeDasharray="6 4" strokeWidth="2" />
-                                <text x="28" y="4" fill="#E89A6B" fontSize="10">Status Quo</text>
-                            </g>
-                            <g transform="translate(10, 40)">
-                                <line x2="20" stroke="#78B999" strokeWidth="3" />
-                                <text x="28" y="4" fill="#78B999" fontSize="10">Protocol Target</text>
-                            </g>
-                        </g>
-                    </svg>
+                        {/* Graph Description Below X-Axis */}
+                        <div style={{ marginTop: -10, marginLeft: CHART_MARGIN.left, maxWidth: innerWidth, fontSize: 10, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>
+                            {viewMode === 'survival' && (
+                                <>
+                                    <strong>Survival Probability:</strong> The likelihood of being alive at a given age.
+                                    Standard mortality tables show a rapid decline after age 80 (Gompertz Law).
+                                    LEV protocols aim to "square the curve" and push the right-side tail indefinitely.
+                                </>
+                            )}
+                            {viewMode === 'health' && (
+                                <>
+                                    <strong>Health Index:</strong> A measure of physiological integrity (0-100%).
+                                    Unlike binary survival, this tracks quality of life.
+                                    Rejuvenation therapies aim to keep this index high (&gt;80%) even as chronological age increases.
+                                </>
+                            )}
+                            {viewMode === 'aliveHealthy' && (
+                                <>
+                                    <strong>Alive & Healthy Probability:</strong> The combined probability of being both alive AND in a robust health state.
+                                    This is the strict "Healthspan" metric. In a true LEV scenario, this curve should rise to meet the survival curve (Compression of Morbidity).
+                                </>
+                            )}
+                        </div>
 
-                    {/* Graph Description Below X-Axis */}
-                    <div style={{ marginTop: -10, marginLeft: CHART_MARGIN.left, maxWidth: innerWidth, fontSize: 10, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4 }}>
-                        {viewMode === 'survival' && (
-                            <>
-                                <strong>Survival Probability:</strong> The likelihood of being alive at a given age.
-                                Standard mortality tables show a rapid decline after age 80 (Gompertz Law).
-                                LEV protocols aim to "square the curve" and push the right-side tail indefinitely.
-                            </>
-                        )}
-                        {viewMode === 'health' && (
-                            <>
-                                <strong>Health Index:</strong> A measure of physiological integrity (0-100%).
-                                Unlike binary survival, this tracks quality of life.
-                                Rejuvenation therapies aim to keep this index high (&gt;80%) even as chronological age increases.
-                            </>
-                        )}
-                        {viewMode === 'aliveHealthy' && (
-                            <>
-                                <strong>Alive & Healthy Probability:</strong> The combined probability of being both alive AND in a robust health state.
-                                This is the strict "Healthspan" metric. In a true LEV scenario, this curve should rise to meet the survival curve (Compression of Morbidity).
-                            </>
-                        )}
-                    </div>
-
-                    {/* Scrubber Controls (Moved from Side Panel) */}
-                    <div className="lev-play-controls" style={{ marginTop: 12, padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
-                            <button className="lev-play-btn" onClick={() => setIsPlaying(!isPlaying)} style={{ flexShrink: 0 }}>
-                                {isPlaying ? '⏸' : '▶'}
-                            </button>
-                            <div className="lev-scrub-slider" style={{ flexGrow: 1 }}>
-                                <div style={{ textAlign: 'center', fontSize: 11, marginBottom: 6, opacity: 0.7, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-                                    Scrubber: Year {scrubYear}
-                                </div>
-                                <input type="range"
-                                    min={currentYear} max={currentYear + 100}
-                                    value={scrubYear}
-                                    onChange={e => {
-                                        setScrubYear(Number(e.target.value));
-                                        setIsPlaying(false);
-                                    }}
-                                    className="lev-slider"
-                                    style={{ width: '100%', display: 'block' }}
-                                />
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginTop: 6, opacity: 0.4 }}>
-                                    {Array.from({ length: 6 }, (_, i) => currentYear + i * 20).map(y => (
-                                        <span key={y}>{y}</span>
-                                    ))}
+                        {/* Scrubber Controls (Moved from Side Panel) */}
+                        <div className="lev-play-controls" style={{ marginTop: 12, padding: '10px 0', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+                                <button className="lev-play-btn" onClick={() => setIsPlaying(!isPlaying)} style={{ flexShrink: 0 }}>
+                                    {isPlaying ? '⏸' : '▶'}
+                                </button>
+                                <div className="lev-scrub-slider" style={{ flexGrow: 1 }}>
+                                    <div style={{ textAlign: 'center', fontSize: 11, marginBottom: 6, opacity: 0.7, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                                        Scrubber: Year {scrubYear}
+                                    </div>
+                                    <input type="range"
+                                        min={currentYear} max={currentYear + 100}
+                                        value={scrubYear}
+                                        onChange={e => {
+                                            setScrubYear(Number(e.target.value));
+                                            setIsPlaying(false);
+                                        }}
+                                        className="lev-slider"
+                                        style={{ width: '100%', display: 'block' }}
+                                    />
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, marginTop: 6, opacity: 0.4 }}>
+                                        {Array.from({ length: 6 }, (_, i) => currentYear + i * 20).map(y => (
+                                            <span key={y}>{y}</span>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div> {/* Close lev-chart-area */}
+
+                    {/* Cone Toggle + Explanation (Between Scrubber and Table) */}
+                    <div className="lev-toggle-container" style={{ display: 'flex', justifyContent: 'flex-start', marginTop: 10 }}>
+                        <div className="lev-toggle-wrapper" style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 16, maxWidth: 650, width: '100%' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                                <label className="lev-label">Cone of Uncertainty Mode</label>
+                                <div className="lev-toggle-group">
+                                    <button
+                                        className={`lev-toggle-btn ${coneMode === 'uncertainty' ? 'active' : ''}`}
+                                        onClick={() => setConeMode('uncertainty')}
+                                    >
+                                        Medical Progress
+                                    </button>
+                                    <button
+                                        className={`lev-toggle-btn ${coneMode === 'protocol' ? 'active' : ''}`}
+                                        onClick={() => setConeMode('protocol')}
+                                    >
+                                        Protocol Variance
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Explanation Text */}
+                            <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4, borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 16 }}>
+                                {coneMode === 'uncertainty'
+                                    ? <span><strong>Medical Progress (Green)</strong>: Shows variation in <em>scientific luck</em> (5th-95th percentile speeds). Assumes <strong>your current protocol</strong>.</span>
+                                    : <span><strong>Protocol Variance (Purple)</strong>: Shows variation in <em>future choices</em>. Simulates switching from your current score to a 5th-95th percentile target. Assumes <strong>median science</strong>.</span>
+                                }
+                            </div>
+                        </div>
                     </div>
-                </div>
 
+                    {/* Bottom: Detailed Scrubber Data */}
+                    <div className="lev-scenario-details" style={{ marginTop: 10 }}>
+                        <div className="lev-stat-title" style={{ marginBottom: 12 }}>
+                            {coneMode === 'uncertainty' ? 'MEDICAL PROGRESS SCENARIOS (Green Cone)' : 'PROTOCOL ADHERENCE SCENARIOS (Purple Cone)'}
+                            <span style={{ fontWeight: 'normal', opacity: 0.5, marginLeft: 8 }}>
+                                AT YEAR {scrubYear} (Age {scrubYear - (currentYear - age)})
+                            </span>
+                        </div>
 
-                {/* Right: Side Panel */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', gap: 16, fontSize: 11, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 8, marginBottom: 8, opacity: 0.5 }}>
+                            <div>{coneMode === 'uncertainty' ? 'PROGRESS PERCENTILE' : 'PROTOCOL PERCENTILE'}</div>
+                            <div style={{ textAlign: 'right' }}>BIOLOGICAL AGE</div>
+                            <div style={{ textAlign: 'right' }}>PACE OF AGING</div>
+                            <div style={{ textAlign: 'right' }}>ANNUAL SURVIVAL</div>
+                            <div style={{ textAlign: 'right' }}>HEALTH INDEX</div>
+                        </div>
+
+                        {[
+                            { label: '95th Percentile', c: coneMode === 'uncertainty' ? cohortFan95 : cohortScore95 },
+                            { label: '75th Percentile', c: coneMode === 'uncertainty' ? cohortFan75 : cohortScore75 },
+                            { label: '50th Percentile', c: coneMode === 'uncertainty' ? cohortFan50 : cohortScore50 },
+                            { label: '25th Percentile', c: coneMode === 'uncertainty' ? cohortFan25 : cohortScore25 },
+                            { label: '5th Percentile', c: coneMode === 'uncertainty' ? cohortFan5 : cohortScore25 },
+                        ].map((row, i) => {
+                            const idx = scrubYear - currentYear;
+                            if (idx < 0 || idx >= row.c.survival.length) return null;
+
+                            const bioAge = row.c.bioAge[idx];
+                            const pace = row.c.pace[idx];
+                            const surv = row.c.annualSurvival[idx];
+                            const h = row.c.health[idx];
+
+                            return (
+                                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 16, fontSize: 12, padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', color: i === 1 ? '#78B999' : 'rgba(255,255,255,0.7)', fontWeight: i === 1 ? 600 : 400, background: i === 1 ? 'rgba(120, 185, 153, 0.1)' : 'transparent' }}>
+                                    <div>{row.label}</div>
+                                    <div style={{ textAlign: 'right' }}>{bioAge.toFixed(1)}</div>
+                                    <div style={{ textAlign: 'right' }}>{pace.toFixed(2)} / yr</div>
+                                    <div style={{ textAlign: 'right' }}>{(surv * 100).toFixed(1)}%</div>
+                                    <div style={{ textAlign: 'right' }}>{h.toFixed(2)}</div>
+                                </div>
+                            );
+                        })}
+
+                        <div style={{ marginTop: 24, fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.8)', maxWidth: 800 }}>
+                            <p>
+                                <strong>How to interpret this graph:</strong> The dashed orange line represents the "Status Quo" trajectory (standard aging). The solid green line represents your specific scenario based on adherence and genetics. The green shaded regions represent the "Cone of Uncertainty" for medical progress—the range of possible futures depending on scientific breakthroughs.
+                            </p>
+
+                            <div style={{ marginTop: 8 }}>
+                                <button
+                                    onClick={() => setShowAnalysis(!showAnalysis)}
+                                    style={{ background: 'transparent', border: 'none', color: '#78B999', cursor: 'pointer', padding: 0, fontSize: 16, textDecoration: 'underline' }}>
+                                    {showAnalysis ? 'Hide Model Analysis & Methodology' : 'Show Model Analysis & Methodology ▼'}
+                                </button>
+                            </div>
+
+                            {showAnalysis && (
+                                <div style={{ marginTop: 16, padding: 16, background: 'rgba(255,255,255,0.05)', borderRadius: 8 }}>
+                                    <h4 style={{ color: '#78B999', marginTop: 0, marginBottom: 8 }}>PART 1: THE CORE MECHANICS</h4>
+
+                                    <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>1. The Gompertz-Makeham Law of Mortality</h4>
+                                    <p style={{ marginBottom: 12 }}>
+                                        Human mortality increases exponentially with age, doubling roughly every 8 years. In our model, this is the "Gravity" that pulls the survival curve down.
+                                        <br />
+                                        <em>Formula:</em> M(t) = M_0 * e^(Gt) + A <br />
+                                        LEV requires reducing the biological age `t` faster than time passes, effectively reversing this exponential climb.
+                                    </p>
+
+                                    <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>2. The Rogers Diffusion Curve (Adoption S-Curve)</h4>
+                                    <p style={{ marginBottom: 12 }}>
+                                        Medical breakthroughs don't reach everyone instantly. We model adoption using a classic S-curve (Rogers, 1962).
+                                        <br />
+                                        <span style={{ color: '#78B999' }}>Innovators (Top 2.5%)</span> get therapies ~15 years before laggards.
+                                        In our model, your <strong>Longevity Score</strong> determines where you sit on this curve. A score of 95 puts you in the "Innovator" bracket, granting early access to rejuvenation tech.
+                                    </p>
+
+                                    <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>3. Biological Age vs. Chronological Age</h4>
+                                    <p style={{ marginBottom: 12 }}>
+                                        We decouple the two. Your "Pace of Aging" (e.g., 0.85/year) determines how fast your Biological Age accumulates.
+                                        <br />
+                                        <em>Simulation:</em> At 0.8 pace, you only age 0.8 biological years for every chronological year. This flattens the Gompertz curve, buying you decades of time for LEV to arrive.
+                                    </p>
+
+                                    <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>4. The Threshold of Escape Velocity (LEV)</h4>
+                                    <p style={{ marginBottom: 12 }}>
+                                        LEV occurs when the "Damage Repair Rate" exceeds the "Damage Accumulation Rate." In our model, this is a tipping point where `d(BioAge)/dt` becomes negative. Once this happens, your Life Expectancy diverges to "Indefinite" (statistically limited only by accidents/non-age causes, modeled here as a 90% cap).
+                                    </p>
+
+                                    <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>5. Stochasticity (The Cone of Uncertainty)</h4>
+                                    <p style={{ marginBottom: 12 }}>
+                                        The future is not a single line. The green "Fan Bands" represent 1,000 Monte Carlo simulations of medical progress variance.
+                                        <br />
+                                        - <strong>Top Band (95th percentile):</strong> A "Singularity" scenario (AI solves biology quickly).
+                                        <br />
+                                        - <strong>Bottom Band (5th percentile):</strong> A "Stagnation" scenario (regulatory gridlock, scientific failures).
+                                    </p>
+
+                                    <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>6. The Fundamental Limit: 90% Cap</h4>
+                                    <p style={{ marginBottom: 12 }}>
+                                        Finally, we enforce a "Hard Reality" cap. Even if the math allows for 100% survival, we cap LEV probability at 90%. This accounts for <strong>Systems Biology limitations</strong>—unknown failure modes (e.g., lysosomal aggregates, nuclear mutations, or non-biological risks) that current "Damage Repair" paradigms (SENS) do not account for. It acknowledges that biology often has a "weakest link" that no amount of optimism can assume away.
+                                    </p>
+
+                                    <h4 style={{ color: '#78B999', marginTop: 24, marginBottom: 8, borderTop: '1px solid rgba(120, 185, 153, 0.3)', paddingTop: 16 }}>PART 2: DEEP DIVE & ASSUMPTIONS</h4>
+
+                                    <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>7. Critical Assumptions & Sensitivity</h4>
+                                    <p style={{ marginBottom: 12 }}>
+                                        Every model relies on priors. Here are ours, ranked by certainty and impact:
+                                        <ul style={{ paddingLeft: 16, marginTop: 4 }}>
+                                            <li><strong>The "Gompertz Limit" (High Certainty, High Impact):</strong> We assume mortality doubles every ~8 years. If LEV therapies fail to break this exponential curve, indefinite lifespans are mathematically impossible regardless of lifestyle.</li>
+                                            <li><strong>Progress Rate (Low Certainty, Critical Impact):</strong> We assume a baseline compounding rate of 1.8% per year for "damage repair efficiency." Changing this via the <strong>Optimism Slider</strong> is the most sensitive variable in the model—a shift to 2.5% moves LEV from 2060 to 2045.</li>
+                                            <li><strong>Adoption S-Curves (Medium Certainty):</strong> We assume adoption follows a standard sigmoid curve. If social contagion accelerates adoption (viral TikTok trends for longevity), the "Majority Lag" could collapse from 15 years to 5 years, significantly boosting mass survival.</li>
+                                        </ul>
+                                    </p>
+
+                                    <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>8. The Health Index: Measuring Robustness</h4>
+                                    <p style={{ marginBottom: 12 }}>
+                                        The "Health Index" (0-100%) is an inverse measure of <strong>Deficit Accumulation</strong> (often called a Frailty Index).
+                                        <br />
+                                        <span style={{ opacity: 0.7 }}>100% = Perfect Robustness</span> | <span style={{ opacity: 0.7 }}>0% = Systemic Failure (Death)</span>
+                                        <br />
+                                        Unlike the binary "Alive/Dead" metric, this index tracks the accumulation of sub-clinical damage (senescent cells, stiffening arteries, DNA breaks). A LEV protocol doesn't just aim to keep you "Alive"; it aims to keep your Health Index above 80% (the "Functional Threshold"). If this Index drops below 40%, survival probability plummets regardless of Chronological Age.
+                                    </p>
+
+                                    <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>9. Medical Progress & The Cone of Uncertainty</h4>
+                                    <p style={{ marginBottom: 12 }}>
+                                        What does the <strong>Green Cone</strong> actually represent?
+                                        <br />
+                                        It represents the variance in <strong>Scientific Discovery</strong>, governed by a Poisson process of breakthroughs.
+                                        <br />
+                                        <strong>Key Accelerants (Move to Top of Cone):</strong>
+                                        <ul style={{ paddingLeft: 16, marginTop: 4 }}>
+                                            <li><strong>The GPT-3 Moment for Biology:</strong> Once partial age reversal is proven in humans, it will trigger a "Sputnik Moment." Massive capital inflows (public & private) will flood the sector, similar to the AI boom of 2025/2026.</li>
+                                            <li><strong>Economic Imperative:</strong> With a median willingness-to-pay of <strong>$129k per extra year of healthy life</strong>, longevity is poised to become one of the world's largest industries. Governments are highly motivated to subsidize these therapies to eliminate the crippling cost burden of senior care.</li>
+                                            <li><strong>Recursive AI & Simulation:</strong> Self-improving AI models grounding virtual cell simulations in reality, allowing for automated, high-throughput wetlab validation.</li>
+                                            <li><strong>Fundamental Breakthroughs:</strong> Log-scale reductions in DNA sequencing/synthesis costs and successful regulatory reform (treating "Aging" as a reimbursable indication).</li>
+                                        </ul>
+                                        <strong>Key Stalls (Move to Bottom of Cone):</strong>
+                                        <ul style={{ paddingLeft: 16, marginTop: 4 }}>
+                                            <li><strong>AI Crackdown:</strong> Governments acting to shut down overall AI progress due to chaos/misalignment fears, causing collateral damage to AI-accelerated biology.</li>
+                                            <li><strong>Geopolitical Conflict:</strong> Global instability diverting focus and supply chains away from long-term scientific abundance.</li>
+                                            <li><strong>Terrorist/Chaos Agents:</strong> Powerful AIs falling into the wrong hands, forcing draconian regulations that stifle open scientific progress.</li>
+                                            <li><strong>Scientific & Economic Setbacks:</strong> Late-stage clinical trial failures (e.g., in senolytics), economic stagnation limiting R&D funding, or "Theranos-style" frauds reducing public trust.</li>
+                                        </ul>
+                                        Use the <strong>Optimism Slider</strong> to bias this probability distribution.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div> {/* Close Scenario Details */}
+                </div> {/* Close lev-left-column */}
+
+                {/* Side Panel */}
                 <div className="lev-side-panel">
-
                     <div className="lev-stat-card">
                         <div className="lev-stat-title">LEV PROBABILITY</div>
                         <div className="lev-stat-value" style={{ color: '#52A7C3' }}>
@@ -546,8 +724,6 @@ export default function LevLongevityTrajectory() {
                         </div>
                     </div>
 
-                    {/* Scrubber Table Moved to Bottom */}
-
                     <div className="lev-stat-card">
                         <div className="lev-stat-title" style={{ marginBottom: 8 }}>SCENARIO LEV DATES (Median)</div>
                         {(() => {
@@ -576,8 +752,6 @@ export default function LevLongevityTrajectory() {
                         </div>
                     </div>
 
-
-
                     <div style={{ fontSize: 10, opacity: 0.3, marginTop: 20, lineHeight: 1.4 }}>
                         {optimism === 0
                             ? "Baseline expectations of medical progress from an aggregate of expert forecasts and prediction markets."
@@ -587,200 +761,6 @@ export default function LevLongevityTrajectory() {
                     </div>
 
                 </div>
-            </div> {/* Close lev-main-layout */}
-
-            {/* Cone Toggle + Explanation (Between Scrubber and Table) */}
-            <div className="lev-toggle-container" style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 20 }}>
-                <div className="lev-toggle-wrapper" style={{ background: 'rgba(255,255,255,0.05)', padding: 12, borderRadius: 8, display: 'flex', alignItems: 'center', gap: 16, maxWidth: 650, width: '100%' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
-                        <label className="lev-label">Cone of Uncertainty Mode</label>
-                        <div className="lev-toggle-group">
-                            <button
-                                className={`lev-toggle-btn ${coneMode === 'uncertainty' ? 'active' : ''}`}
-                                onClick={() => setConeMode('uncertainty')}
-                            >
-                                Medical Progress
-                            </button>
-                            <button
-                                className={`lev-toggle-btn ${coneMode === 'protocol' ? 'active' : ''}`}
-                                onClick={() => setConeMode('protocol')}
-                            >
-                                Protocol Variance
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Explanation Text */}
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.6)', lineHeight: 1.4, borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: 16 }}>
-                        {coneMode === 'uncertainty'
-                            ? <span><strong>Medical Progress (Green)</strong>: Shows variation in <em>scientific luck</em> (5th-95th percentile speeds). Assumes <strong>your current protocol</strong>.</span>
-                            : <span><strong>Protocol Variance (Purple)</strong>: Shows variation in <em>future choices</em>. Simulates switching from your current score to a 5th-95th percentile target. Assumes <strong>median science</strong>.</span>
-                        }
-                    </div>
-                </div>
-            </div>
-
-            {/* Bottom: Detailed Scrubber Data */}
-            <div className="lev-scenario-details">
-                <div className="lev-stat-title" style={{ marginBottom: 12 }}>
-                    {coneMode === 'uncertainty' ? 'MEDICAL PROGRESS SCENARIOS (Green Cone)' : 'PROTOCOL ADHERENCE SCENARIOS (Purple Cone)'}
-                    <span style={{ fontWeight: 'normal', opacity: 0.5, marginLeft: 8 }}>
-                        AT YEAR {scrubYear} (Age {scrubYear - (currentYear - age)})
-                    </span>
-                </div>
-
-                <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1fr 1fr 1fr', gap: 16, fontSize: 11, borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: 8, marginBottom: 8, opacity: 0.5 }}>
-                    <div>{coneMode === 'uncertainty' ? 'PROGRESS PERCENTILE' : 'PROTOCOL PERCENTILE'}</div>
-                    <div style={{ textAlign: 'right' }}>BIOLOGICAL AGE</div>
-                    <div style={{ textAlign: 'right' }}>PACE OF AGING</div>
-                    <div style={{ textAlign: 'right' }}>ANNUAL SURVIVAL</div>
-                    <div style={{ textAlign: 'right' }}>HEALTH INDEX</div>
-                </div>
-
-                {[
-                    { label: '95th Percentile', c: coneMode === 'uncertainty' ? cohortFan95 : cohortScore95 },
-                    { label: '75th Percentile', c: coneMode === 'uncertainty' ? cohortFan75 : cohortScore75 },
-                    { label: '50th Percentile', c: coneMode === 'uncertainty' ? cohortFan50 : cohortScore50 }, // Use cohortScore50 defined previously if available, or re-enable it? I deleted it. I need it back or simulate.
-                    // Wait, I deleted cohortScore50! I need to restore it or use cohortCurrent if current==50? No.
-                    // I need to generate it or find substitute. 
-                    // Actually, I can just simulate it inline or restore the memo.
-                    // I'll assume for now I should just generate it or omit? 
-                    // 50th percentile protocol... is Median. 
-                    // Let's check if I have it. I deleted it.
-                    // I will map it to use a new memo if needed.
-                    // Or better: Re-add cohortScore50 in a separate step or assume I can use simulateCohort directly? No, loops.
-                    // I'll map it to `cohortFan50` (which is Median Progress). 
-                    // Wait. `cohortFan50` is (CurrentScore, MedianProgress).
-                    // `cohortScore50` is (Score 50, MedianProgress).
-                    // They are DIFFERENT unless CurrentScore == 50.
-                    // I MUST restore cohortScore50.
-                    { label: '25th Percentile', c: coneMode === 'uncertainty' ? cohortFan25 : cohortScore25 },
-                    { label: '5th Percentile', c: coneMode === 'uncertainty' ? cohortFan5 : cohortScore25 }, // 5th not computed for protocol, reuse 25
-                ].map((row, i) => {
-                    const idx = scrubYear - currentYear;
-                    if (idx < 0 || idx >= row.c.survival.length) return null;
-
-                    const bioAge = row.c.bioAge[idx];
-                    const pace = row.c.pace[idx];
-                    const surv = row.c.annualSurvival[idx];
-                    const h = row.c.health[idx];
-
-                    return (
-                        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: 16, fontSize: 12, padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,0.05)', color: i === 1 ? '#78B999' : 'rgba(255,255,255,0.7)', fontWeight: i === 1 ? 600 : 400, background: i === 1 ? 'rgba(120, 185, 153, 0.1)' : 'transparent' }}>
-                            <div>{row.label}</div>
-                            <div style={{ textAlign: 'right' }}>{bioAge.toFixed(1)}</div>
-                            <div style={{ textAlign: 'right' }}>{pace.toFixed(2)} / yr</div>
-                            <div style={{ textAlign: 'right' }}>{(surv * 100).toFixed(1)}%</div>
-                            <div style={{ textAlign: 'right' }}>{h.toFixed(2)}</div>
-                        </div>
-                    );
-                })}
-            </div>
-
-            <div style={{ marginTop: 24, fontSize: 12, lineHeight: 1.6, color: 'rgba(255,255,255,0.8)', maxWidth: 800 }}>
-                <p>
-                    <strong>How to interpret this graph:</strong> The dashed orange line represents the "Status Quo" trajectory (standard aging). The solid green line represents your specific scenario based on adherence and genetics. The green shaded regions represent the "Cone of Uncertainty" for medical progress—the range of possible futures depending on scientific breakthroughs.
-                </p>
-
-                <div style={{ marginTop: 8 }}>
-                    <button
-                        onClick={() => setShowAnalysis(!showAnalysis)}
-                        style={{ background: 'transparent', border: 'none', color: '#78B999', cursor: 'pointer', padding: 0, fontSize: 16, textDecoration: 'underline' }}>
-                        {showAnalysis ? 'Hide Model Analysis & Methodology' : 'Show Model Analysis & Methodology ▼'}
-                    </button>
-                </div>
-
-                {showAnalysis && (
-                    <div style={{ marginTop: 16, padding: 16, background: 'rgba(255,255,255,0.05)', borderRadius: 8 }}>
-                        <h4 style={{ color: '#78B999', marginTop: 0, marginBottom: 8 }}>PART 1: THE CORE MECHANICS</h4>
-
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>1. The Gompertz-Makeham Law of Mortality</h4>
-                        <p style={{ marginBottom: 12 }}>
-                            Human mortality increases exponentially with age, doubling roughly every 8 years. In our model, this is the "Gravity" that pulls the survival curve down.
-                            <br />
-                            <em>Formula:</em> M(t) = M_0 * e^(Gt) + A <br />
-                            LEV requires reducing the biological age `t` faster than time passes, effectively reversing this exponential climb.
-                        </p>
-
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>2. The Rogers Diffusion Curve (Adoption S-Curve)</h4>
-                        <p style={{ marginBottom: 12 }}>
-                            Medical breakthroughs don't reach everyone instantly. We model adoption using a classic S-curve (Rogers, 1962).
-                            <br />
-                            <span style={{ color: '#78B999' }}>Innovators (Top 2.5%)</span> get therapies ~15 years before laggards.
-                            In our model, your <strong>Longevity Score</strong> determines where you sit on this curve. A score of 95 puts you in the "Innovator" bracket, granting early access to rejuvenation tech.
-                        </p>
-
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>3. Biological Age vs. Chronological Age</h4>
-                        <p style={{ marginBottom: 12 }}>
-                            We decouple the two. Your "Pace of Aging" (e.g., 0.85/year) determines how fast your Biological Age accumulates.
-                            <br />
-                            <em>Simulation:</em> At 0.8 pace, you only age 0.8 biological years for every chronological year. This flattens the Gompertz curve, buying you decades of time for LEV to arrive.
-                        </p>
-
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>4. The Threshold of Escape Velocity (LEV)</h4>
-                        <p style={{ marginBottom: 12 }}>
-                            LEV occurs when the "Damage Repair Rate" exceeds the "Damage Accumulation Rate." In our model, this is a tipping point where `d(BioAge)/dt` becomes negative. Once this happens, your Life Expectancy diverges to "Indefinite" (statistically limited only by accidents/non-age causes, modeled here as a 90% cap).
-                        </p>
-
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>5. Stochasticity (The Cone of Uncertainty)</h4>
-                        <p style={{ marginBottom: 12 }}>
-                            The future is not a single line. The green "Fan Bands" represent 1,000 Monte Carlo simulations of medical progress variance.
-                            <br />
-                            - <strong>Top Band (95th percentile):</strong> A "Singularity" scenario (AI solves biology quickly).
-                            <br />
-                            - <strong>Bottom Band (5th percentile):</strong> A "Stagnation" scenario (regulatory gridlock, scientific failures).
-                        </p>
-
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>6. The Fundamental Limit: 90% Cap</h4>
-                        <p style={{ marginBottom: 12 }}>
-                            Finally, we enforce a "Hard Reality" cap. Even if the math allows for 100% survival, we cap LEV probability at 90%. This accounts for <strong>Systems Biology limitations</strong>—unknown failure modes (e.g., lysosomal aggregates, nuclear mutations, or non-biological risks) that current "Damage Repair" paradigms (SENS) do not account for. It acknowledges that biology often has a "weakest link" that no amount of optimism can assume away.
-                        </p>
-
-                        <h4 style={{ color: '#78B999', marginTop: 24, marginBottom: 8, borderTop: '1px solid rgba(120, 185, 153, 0.3)', paddingTop: 16 }}>PART 2: DEEP DIVE & ASSUMPTIONS</h4>
-
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>7. Critical Assumptions & Sensitivity</h4>
-                        <p style={{ marginBottom: 12 }}>
-                            Every model relies on priors. Here are ours, ranked by certainty and impact:
-                            <ul style={{ paddingLeft: 16, marginTop: 4 }}>
-                                <li><strong>The "Gompertz Limit" (High Certainty, High Impact):</strong> We assume mortality doubles every ~8 years. If LEV therapies fail to break this exponential curve, indefinite lifespans are mathematically impossible regardless of lifestyle.</li>
-                                <li><strong>Progress Rate (Low Certainty, Critical Impact):</strong> We assume a baseline compounding rate of 1.8% per year for "damage repair efficiency." Changing this via the <strong>Optimism Slider</strong> is the most sensitive variable in the model—a shift to 2.5% moves LEV from 2060 to 2045.</li>
-                                <li><strong>Adoption S-Curves (Medium Certainty):</strong> We assume adoption follows a standard sigmoid curve. If social contagion accelerates adoption (viral TikTok trends for longevity), the "Majority Lag" could collapse from 15 years to 5 years, significantly boosting mass survival.</li>
-                            </ul>
-                        </p>
-
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>8. The Health Index: Measuring Robustness</h4>
-                        <p style={{ marginBottom: 12 }}>
-                            The "Health Index" (0-100%) is an inverse measure of <strong>Deficit Accumulation</strong> (often called a Frailty Index).
-                            <br />
-                            <span style={{ opacity: 0.7 }}>100% = Perfect Robustness</span> | <span style={{ opacity: 0.7 }}>0% = Systemic Failure (Death)</span>
-                            <br />
-                            Unlike the binary "Alive/Dead" metric, this index tracks the accumulation of sub-clinical damage (senescent cells, stiffening arteries, DNA breaks). A LEV protocol doesn't just aim to keep you "Alive"; it aims to keep your Health Index above 80% (the "Functional Threshold"). If this Index drops below 40%, survival probability plummets regardless of Chronological Age.
-                        </p>
-
-                        <h4 style={{ color: 'white', marginTop: 16, marginBottom: 8 }}>9. Medical Progress & The Cone of Uncertainty</h4>
-                        <p style={{ marginBottom: 12 }}>
-                            What does the <strong>Green Cone</strong> actually represent?
-                            <br />
-                            It represents the variance in <strong>Scientific Discovery</strong>, governed by a Poisson process of breakthroughs.
-                            <br />
-                            <strong>Key Accelerants (Move to Top of Cone):</strong>
-                            <ul style={{ paddingLeft: 16, marginTop: 4 }}>
-                                <li><strong>The GPT-3 Moment for Biology:</strong> Once partial age reversal is proven in humans, it will trigger a "Sputnik Moment." Massive capital inflows (public & private) will flood the sector, similar to the AI boom of 2025/2026.</li>
-                                <li><strong>Economic Imperative:</strong> With a median willingness-to-pay of <strong>$129k per extra year of healthy life</strong>, longevity is poised to become one of the world's largest industries. Governments are highly motivated to subsidize these therapies to eliminate the crippling cost burden of senior care.</li>
-                                <li><strong>Recursive AI & Simulation:</strong> Self-improving AI models grounding virtual cell simulations in reality, allowing for automated, high-throughput wetlab validation.</li>
-                                <li><strong>Fundamental Breakthroughs:</strong> Log-scale reductions in DNA sequencing/synthesis costs and successful regulatory reform (treating "Aging" as a reimbursable indication).</li>
-                            </ul>
-                            <strong>Key Stalls (Move to Bottom of Cone):</strong>
-                            <ul style={{ paddingLeft: 16, marginTop: 4 }}>
-                                <li><strong>AI Crackdown:</strong> Governments acting to shut down overall AI progress due to chaos/misalignment fears, causing collateral damage to AI-accelerated biology.</li>
-                                <li><strong>Geopolitical Conflict:</strong> Global instability diverting focus and supply chains away from long-term scientific abundance.</li>
-                                <li><strong>Terrorist/Chaos Agents:</strong> Powerful AIs falling into the wrong hands, forcing draconian regulations that stifle open scientific progress.</li>
-                                <li><strong>Scientific & Economic Setbacks:</strong> Late-stage clinical trial failures (e.g., in senolytics), economic stagnation limiting R&D funding, or "Theranos-style" frauds reducing public trust.</li>
-                            </ul>
-                            Use the <strong>Optimism Slider</strong> to bias this probability distribution.
-                        </p>
-                    </div>
-                )}
             </div>
         </div>
     );
